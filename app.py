@@ -16,7 +16,8 @@ from data_fetcher import (
 
 # キャッシュファイルのパス
 CACHE_FILE = Path(__file__).parent / "cache" / "kakei_2025_cache.json"
-DATA_DIR = Path(__file__).parent / "data"
+RAW_DIR = Path(__file__).parent / "data" / "raw"
+PROCESSED_DIR = Path(__file__).parent / "data" / "processed"
 
 
 def load_cache() -> dict:
@@ -55,8 +56,39 @@ def search_items(items: list[dict], keyword: str) -> list[dict]:
     return [item for item in items if keyword in item["display_name"].lower()]
 
 
-def download_item(stats_data_id: str, item: dict, filters: dict[str, str]) -> Path | None:
-    """品目データをダウンロード"""
+def parse_time(time_code: str) -> str:
+    """時間コードをYYYY-MM形式に変換"""
+    # "2000000101" → "2000-01"
+    year = time_code[:4]
+    month = time_code[6:8]
+    return f"{year}-{month}"
+
+
+def process_dataframe(df, item: dict, cache: dict) -> "pd.DataFrame":
+    """DataFrameを加工して人間が読める形式に変換"""
+    import pandas as pd
+
+    # マッピング作成
+    item_map = {it["code"]: it["display_name"] for it in cache["items"]}
+    household_map = {h["code"]: h["name"] for h in cache["households"]}
+    area_map = {a["code"]: a["name"] for a in cache["areas"]}
+
+    # 加工
+    processed = pd.DataFrame()
+    processed["year_month"] = df["time"].apply(parse_time)
+    processed["item"] = df["cat01"].map(item_map).fillna(item["display_name"])
+    processed["household"] = df["cat02"].map(household_map)
+    processed["area"] = df["area"].map(area_map)
+    processed["unit"] = df["unit"]
+    processed["value"] = df["value"]
+
+    return processed
+
+
+def download_item(
+    stats_data_id: str, item: dict, filters: dict[str, str], cache: dict
+) -> Path | None:
+    """品目データをダウンロード（raw + processed）"""
     item_filters = {**filters, "cat01": item["code"]}
 
     try:
@@ -64,13 +96,22 @@ def download_item(stats_data_id: str, item: dict, filters: dict[str, str]) -> Pa
         if df.empty:
             return None
 
-        DATA_DIR.mkdir(parents=True, exist_ok=True)
-        filename = f"家計調査_{item['display_name']}_月次.csv"
         # ファイル名の安全化
-        filename = filename.replace("/", "_").replace("\\", "_")
-        filepath = DATA_DIR / filename
-        df.to_csv(filepath, index=False, encoding="utf-8-sig")
-        return filepath
+        safe_name = item["display_name"].replace("/", "_").replace("\\", "_")
+        filename = f"家計調査_{safe_name}_月次.csv"
+
+        # raw保存
+        RAW_DIR.mkdir(parents=True, exist_ok=True)
+        raw_path = RAW_DIR / filename
+        df.to_csv(raw_path, index=False, encoding="utf-8-sig")
+
+        # processed保存
+        PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+        processed_df = process_dataframe(df, item, cache)
+        processed_path = PROCESSED_DIR / filename
+        processed_df.to_csv(processed_path, index=False, encoding="utf-8-sig")
+
+        return processed_path
     except (ApiKeyNotFoundError, EStatApiError) as e:
         st.error(f"エラー: {e.message}")
         return None
@@ -145,7 +186,7 @@ def main() -> None:
                     item = next((it for it in items if it["code"] == code), None)
                     if item:
                         status.text(f"ダウンロード中: {item['display_name']}")
-                        filepath = download_item(stats_data_id, item, default_filters)
+                        filepath = download_item(stats_data_id, item, default_filters, cache)
                         if filepath:
                             downloaded.append(filepath)
                     progress.progress((i + 1) / len(codes_list))

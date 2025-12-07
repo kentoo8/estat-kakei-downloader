@@ -17,7 +17,9 @@ CLI版とGUI版（Streamlit）を提供。品目キャッシュにより高速�
 ├── data_fetcher.py     # e-Stat API通信
 ├── cache/
 │   └── kakei_2025_cache.json  # 品目キャッシュ（689品目）
-├── data/               # CSV出力先
+├── data/
+│   ├── raw/            # APIから取得した生データ
+│   └── processed/      # 加工済みデータ（人間が読める形式）
 └── docs/               # 人間用ドキュメント
 ```
 
@@ -27,9 +29,13 @@ CLI版とGUI版（Streamlit）を提供。品目キャッシュにより高速�
 
 | 関数 | 役割 |
 |------|------|
-| `load_cache()` | キャッシュJSON読み込み（@st.cache_data） |
+| `load_cache()` | キャッシュJSON読み込み |
 | `get_default_filters()` | デフォルトフィルター取得 |
-| `download_item()` | 単一品目のダウンロード |
+| `search_items()` | 品目をキーワード検索 |
+| `parse_time()` | 時間コードをYYYY-MM形式に変換 |
+| `process_dataframe()` | DataFrameを人間が読める形式に変換 |
+| `download_item()` | 単一品目のダウンロード（raw + processed） |
+| `get_selected_codes()` | チェックボックス状態から選択中コード取得 |
 | `main()` | Streamlit UI |
 
 ### cli.py（CLI）
