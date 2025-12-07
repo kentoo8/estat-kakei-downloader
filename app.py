@@ -1,6 +1,6 @@
 """
 家計調査 月次支出データ取得 GUI（Streamlit）
-チェックボックスで品目を選択して一括ダウンロード
+検索で絞り込み → チェックボックスで選択 → 一括ダウンロード
 """
 
 import json
@@ -19,7 +19,6 @@ CACHE_FILE = Path(__file__).parent / "cache" / "kakei_2025_cache.json"
 DATA_DIR = Path(__file__).parent / "data"
 
 
-@st.cache_data
 def load_cache() -> dict:
     """キャッシュを読み込む"""
     with open(CACHE_FILE, "r", encoding="utf-8") as f:
@@ -48,6 +47,14 @@ def get_default_filters(cache: dict) -> dict[str, str]:
     return filters
 
 
+def search_items(items: list[dict], keyword: str) -> list[dict]:
+    """品目を検索"""
+    if not keyword:
+        return items
+    keyword = keyword.lower()
+    return [item for item in items if keyword in item["display_name"].lower()]
+
+
 def download_item(stats_data_id: str, item: dict, filters: dict[str, str]) -> Path | None:
     """品目データをダウンロード"""
     item_filters = {**filters, "cat01": item["code"]}
@@ -67,6 +74,15 @@ def download_item(stats_data_id: str, item: dict, filters: dict[str, str]) -> Pa
     except (ApiKeyNotFoundError, EStatApiError) as e:
         st.error(f"エラー: {e.message}")
         return None
+
+
+def get_selected_codes(items: list[dict]) -> set[str]:
+    """チェックボックスの状態から選択中のコードを取得"""
+    selected = set()
+    for item in items:
+        if st.session_state.get(f"cb_{item['code']}", False):
+            selected.add(item["code"])
+    return selected
 
 
 def main() -> None:
@@ -90,64 +106,100 @@ def main() -> None:
     items = cache["items"]
     default_filters = get_default_filters(cache)
 
-    # セッション状態の初期化
-    if "selected_items" not in st.session_state:
-        st.session_state.selected_items = set()
+    # 検索キーの初期化
+    if "search_key" not in st.session_state:
+        st.session_state.search_key = 0
 
-    # サイドバー: 選択状況
+    # 選択中のコードを取得
+    selected_codes = get_selected_codes(items)
+
+    # サイドバー: 選択状況とダウンロード
     with st.sidebar:
         st.header("選択中の品目")
-        selected_count = len(st.session_state.selected_items)
+        selected_count = len(selected_codes)
         st.metric("選択数", selected_count)
 
         if selected_count > 0:
-            if st.button("🗑️ 選択をクリア"):
-                st.session_state.selected_items = set()
-                st.rerun()
+            st.divider()
+            selected_items_list = [it for it in items if it["code"] in selected_codes]
+            for item in selected_items_list[:10]:
+                st.text(f"• {item['display_name']}")
+            if selected_count > 10:
+                st.text(f"... 他 {selected_count - 10} 件")
 
             st.divider()
 
-            if st.button("📥 選択した品目をダウンロード", type="primary"):
+            if st.button("🗑️ 選択をクリア"):
+                for item in items:
+                    st.session_state[f"cb_{item['code']}"] = False
+                st.rerun()
+
+            if st.button("📥 ダウンロード", type="primary"):
                 progress = st.progress(0)
                 status = st.empty()
 
                 downloaded = []
-                selected_codes = list(st.session_state.selected_items)
+                codes_list = list(selected_codes)
 
-                for i, code in enumerate(selected_codes):
+                for i, code in enumerate(codes_list):
                     item = next((it for it in items if it["code"] == code), None)
                     if item:
                         status.text(f"ダウンロード中: {item['display_name']}")
                         filepath = download_item(stats_data_id, item, default_filters)
                         if filepath:
                             downloaded.append(filepath)
-                    progress.progress((i + 1) / len(selected_codes))
+                    progress.progress((i + 1) / len(codes_list))
 
                 status.empty()
                 progress.empty()
 
                 if downloaded:
-                    st.success(f"✅ {len(downloaded)}件ダウンロード完了")
+                    st.success(f"✅ {len(downloaded)}件完了")
                     for fp in downloaded:
                         st.text(f"  {fp.name}")
 
-    # メイン: 品目リスト
-    st.subheader(f"品目一覧（{len(items)}件）")
+    # メイン: 検索と品目リスト
+    search_keyword = st.text_input(
+        "🔍 品目を検索（空欄で全件表示）",
+        placeholder="例: アイス、ビール、米",
+        key=f"search_{st.session_state.search_key}",
+    )
+
+    if search_keyword and st.button("🔍 検索をクリア", type="secondary"):
+        st.session_state.search_key += 1
+        st.rerun()
+
+    # 検索結果をフィルタリング
+    filtered_items = search_items(items, search_keyword)
+
+    # 検索結果の操作ボタン
+    col1, col2, col3 = st.columns([2, 2, 6])
+    with col1:
+        if st.button("✅ 表示中を全選択"):
+            for item in filtered_items:
+                st.session_state[f"cb_{item['code']}"] = True
+            st.rerun()
+    with col2:
+        if st.button("⬜ 表示中を全解除"):
+            for item in filtered_items:
+                st.session_state[f"cb_{item['code']}"] = False
+            st.rerun()
+
+    st.subheader(f"品目一覧（{len(filtered_items)}件）")
+
+    if not filtered_items:
+        st.info("該当する品目がありません。")
+        return
 
     # グリッド表示（3列）
-    cols = st.columns(3)
+    num_cols = 3
+    rows = [filtered_items[i : i + num_cols] for i in range(0, len(filtered_items), num_cols)]
 
-    for i, item in enumerate(items):
-        col = cols[i % 3]
-        code = item["code"]
-        display_name = item["display_name"]
-
-        with col:
-            checked = code in st.session_state.selected_items
-            if st.checkbox(display_name, value=checked, key=f"item_{code}"):
-                st.session_state.selected_items.add(code)
-            else:
-                st.session_state.selected_items.discard(code)
+    for row_items in rows:
+        cols = st.columns(num_cols)
+        for col_idx, item in enumerate(row_items):
+            with cols[col_idx]:
+                st.checkbox(item["display_name"], key=f"cb_{item['code']}")
 
 
 if __name__ == "__main__":
