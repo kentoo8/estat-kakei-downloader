@@ -136,6 +136,13 @@ def main() -> None:
     st.title("📊 家計調査 月次支出データ取得")
     st.caption("2025年改定版 | 二人以上の世帯 | 全国")
 
+    # データ出典（フッター）
+    st.sidebar.markdown("---")
+    st.sidebar.caption(
+        "出典：「家計調査」（総務省統計局）\n\n"
+        "政府統計の総合窓口 [e-Stat](https://www.e-stat.go.jp/)"
+    )
+
     # キャッシュ読み込み
     try:
         cache = load_cache()
