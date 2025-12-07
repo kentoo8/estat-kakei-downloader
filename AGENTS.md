@@ -6,13 +6,14 @@
 
 ## 概要
 
-家計調査（2025年改定）の月次支出データをe-Stat APIから取得するCLIツール。
-品目キャッシュにより高速な検索を実現。
+家計調査（2025年改定）の月次支出データをe-Stat APIから取得するツール。
+CLI版とGUI版（Streamlit）を提供。品目キャッシュにより高速な検索を実現。
 
 ## ファイル構成
 
 ```
-├── cli.py              # メインCLI（対話処理）
+├── app.py              # GUI（Streamlit）
+├── cli.py              # CLI（対話処理）
 ├── data_fetcher.py     # e-Stat API通信
 ├── cache/
 │   └── kakei_2025_cache.json  # 品目キャッシュ（689品目）
@@ -22,7 +23,16 @@
 
 ## 主要な関数
 
-### cli.py
+### app.py（GUI）
+
+| 関数 | 役割 |
+|------|------|
+| `load_cache()` | キャッシュJSON読み込み（@st.cache_data） |
+| `get_default_filters()` | デフォルトフィルター取得 |
+| `download_item()` | 単一品目のダウンロード |
+| `main()` | Streamlit UI |
+
+### cli.py（CLI）
 
 | 関数 | 役割 |
 |------|------|
@@ -65,7 +75,7 @@
 - **認証**: `ESTAT_APP_ID`（.envから読み込み）
 - **ページング**: 10万件単位
 
-## 例外クラス
+## 例外クラス（data_fetcher.py）
 
 - `ApiKeyNotFoundError`: APIキー未設定
 - `EStatApiError`: APIエラー
@@ -82,3 +92,4 @@
 1. **品目追加**: `cache/kakei_2025_cache.json`を更新
 2. **新しい統計表**: `stats_data_id`を変更
 3. **フィルター追加**: `_build_dimension_params()`を確認
+4. **GUI機能追加**: `app.py`のStreamlitコンポーネントを編集
