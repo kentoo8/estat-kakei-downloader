@@ -2,6 +2,7 @@
 
 e-Stat 半自動データ取得アプリ
 完全版仕様指示書（few-shot 統合版）
+プロジェクト名: estat-kakei-downloader
 目的
 
 ユーザーの入力に基づき e-Stat API から統計表データを取得し、

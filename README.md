@@ -1,7 +1,6 @@
-# 家計調査 月次支出データ取得ツール
+# estat-kakei-downloader
 
-e-Stat APIを使用して、家計調査（2025年改定）の月次支出データを取得するツールです。
-CLI版とGUI版（Streamlit）を提供。
+e-Stat APIで家計調査（2025年改定）の月次支出データを取得するCLI/GUIツール。
 
 ## セットアップ
 

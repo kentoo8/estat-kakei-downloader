@@ -6,6 +6,8 @@
 
 ## 概要
 
+プロジェクト名: estat-kakei-downloader
+
 家計調査（2025年改定）の月次支出データをe-Stat APIから取得するツール。
 CLI版とGUI版（Streamlit）を提供。品目キャッシュにより高速な検索を実現。
 
