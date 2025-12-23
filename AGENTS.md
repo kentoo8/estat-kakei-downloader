@@ -112,3 +112,5 @@ GUI版（Streamlit）を提供。品目キャッシュにより高速な検索�
 - READMEにAPIキー入力と機密保持の説明を追加
 - READMEの機密説明を「メモリ保持・保存/外部送信なし」に修正
 - READMEの.env手順を任意扱いに変更
+- READMEのセットアップ手順にe-StatのID取得を追加
+- READMEのAPIキー入力文言を調整

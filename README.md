@@ -13,13 +13,15 @@ e-Stat APIで家計調査（2025年改定）の月次支出データを取得す
     pip install -r requirements.txt
     ```
 
-2. （任意）`.env`ファイルを作成し、APIキーを設定
+1. [e-Stat](https://www.e-stat.go.jp/)でアプリケーションID（`ESTAT_APP_ID`）を取得
+
+1. （任意）`.env`ファイルを作成し、APIキーを設定
 
     ```bash
     cp .env.example .env
     ```
 
-    `.env`を編集して、`ESTAT_APP_ID`に[e-Stat](https://www.e-stat.go.jp/)で取得したアプリケーションIDを設定してください。
+    `.env`を編集して、`ESTAT_APP_ID`に取得したアプリケーションIDを設定してください。
     `.env`を使わない場合は、アプリ内のAPIキー入力欄から設定できます。
 
 ## 使い方
@@ -28,7 +30,7 @@ e-Stat APIで家計調査（2025年改定）の月次支出データを取得す
 streamlit run app.py
 ```
 
-- サイドバーの「APIキー」に `ESTAT_APP_ID` を入力できます（未入力の場合は環境変数を使用）
+- サイドバーの「APIキー」にアプリケーションIDを入力できます（未入力の場合は環境変数を使用）
 - 入力したAPIキーはこのアプリの実行中にメモリ上で保持され、ファイル保存や外部送信は行いません
 - 検索で品目を絞り込み
 - チェックボックスで選択
