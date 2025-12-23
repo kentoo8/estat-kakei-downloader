@@ -45,8 +45,6 @@ streamlit run app.py
 
 ダウンロードしたデータは `data/` 配下にCSVとして保存されます。
 
-### processed形式
-
 | カラム | 例 |
 |--------|-----|
 | `year_month` | 2024-04 |
