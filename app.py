@@ -98,7 +98,11 @@ def process_dataframe(df, item: dict, cache: dict) -> "pd.DataFrame":
 
 
 def download_item(
-    stats_data_id: str, item: dict, filters: dict[str, str], cache: dict
+    stats_data_id: str,
+    item: dict,
+    filters: dict[str, str],
+    cache: dict,
+    app_id: str | None = None,
 ) -> Path | None:
     """品目データをダウンロード（processedのみ）"""
     item_filters = {**filters, "cat01": item["code"]}
@@ -109,7 +113,7 @@ def download_item(
         return sanitized or "item"
 
     try:
-        df = fetch_stats_data(stats_data_id, item_filters)
+        df = fetch_stats_data(stats_data_id, item_filters, app_id)
         if df.empty:
             return None
 
@@ -179,6 +183,15 @@ def main() -> None:
         selected_count = len(selected_codes)
         st.metric("選択数", selected_count)
 
+        st.divider()
+        st.subheader("APIキー")
+        st.text_input(
+            "ESTAT_APP_ID",
+            type="password",
+            key="api_key",
+            help="未入力の場合は環境変数ESTAT_APP_IDを使用します。",
+        )
+
         if selected_count > 0:
             st.divider()
             selected_items_list = [it for it in items if it["code"] in selected_codes]
@@ -200,12 +213,19 @@ def main() -> None:
 
                 downloaded = []
                 codes_list = list(selected_codes)
+                app_id = st.session_state.get("api_key", "").strip() or None
 
                 for i, code in enumerate(codes_list):
                     item = next((it for it in items if it["code"] == code), None)
                     if item:
                         status.text(f"ダウンロード中: {item['display_name']}")
-                        filepath = download_item(stats_data_id, item, default_filters, cache)
+                        filepath = download_item(
+                            stats_data_id,
+                            item,
+                            default_filters,
+                            cache,
+                            app_id,
+                        )
                         if filepath:
                             downloaded.append(filepath)
                     progress.progress((i + 1) / len(codes_list))

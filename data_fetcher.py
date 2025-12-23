@@ -35,8 +35,10 @@ BASE_URL = "https://api.e-stat.go.jp/rest/3.0/app/json"
 PAGE_SIZE = 100000  # 10万件単位でページング
 
 
-def _get_app_id() -> str:
+def _get_app_id(app_id: str | None = None) -> str:
     """APIキーを取得する"""
+    if app_id:
+        return app_id
     app_id = os.getenv("ESTAT_APP_ID")
     if not app_id:
         raise ApiKeyNotFoundError()
@@ -93,7 +95,9 @@ def _check_api_response(data: dict) -> None:
         raise EStatApiError(f"e-Stat API エラー: {error_msg}", status_value)
 
 
-def count_stats_data(stats_data_id: str, dimension_filters: dict[str, str]) -> int:
+def count_stats_data(
+    stats_data_id: str, dimension_filters: dict[str, str], app_id: str | None = None
+) -> int:
     """
     データ件数を取得する
 
@@ -105,7 +109,7 @@ def count_stats_data(stats_data_id: str, dimension_filters: dict[str, str]) -> i
         データ件数
     """
     params = {
-        "appId": _get_app_id(),
+        "appId": _get_app_id(app_id),
         "statsDataId": stats_data_id,
         "limit": 1,
         **_build_dimension_params(dimension_filters),
@@ -128,7 +132,9 @@ def count_stats_data(stats_data_id: str, dimension_filters: dict[str, str]) -> i
 
 
 def fetch_stats_data(
-    stats_data_id: str, dimension_filters: dict[str, str]
+    stats_data_id: str,
+    dimension_filters: dict[str, str],
+    app_id: str | None = None,
 ) -> pd.DataFrame:
     """
     統計データを取得しDataFrameとして返す
@@ -140,7 +146,7 @@ def fetch_stats_data(
     Returns:
         統計データのDataFrame
     """
-    app_id = _get_app_id()
+    app_id = _get_app_id(app_id)
     dimension_params = _build_dimension_params(dimension_filters)
 
     all_data: list[dict] = []
