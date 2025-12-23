@@ -16,8 +16,7 @@ from data_fetcher import (
 
 # キャッシュファイルのパス
 CACHE_FILE = Path(__file__).parent / "cache" / "kakei_2025_cache.json"
-RAW_DIR = Path(__file__).parent / "data" / "raw"
-PROCESSED_DIR = Path(__file__).parent / "data" / "processed"
+DATA_DIR = Path(__file__).parent / "data"
 
 
 def load_cache() -> dict:
@@ -88,7 +87,7 @@ def process_dataframe(df, item: dict, cache: dict) -> "pd.DataFrame":
 def download_item(
     stats_data_id: str, item: dict, filters: dict[str, str], cache: dict
 ) -> Path | None:
-    """品目データをダウンロード（raw + processed）"""
+    """品目データをダウンロード（processedのみ）"""
     item_filters = {**filters, "cat01": item["code"]}
 
     try:
@@ -100,15 +99,10 @@ def download_item(
         safe_name = item["display_name"].replace("/", "_").replace("\\", "_")
         filename = f"家計調査_{safe_name}_月次.csv"
 
-        # raw保存
-        RAW_DIR.mkdir(parents=True, exist_ok=True)
-        raw_path = RAW_DIR / filename
-        df.to_csv(raw_path, index=False, encoding="utf-8-sig")
-
         # processed保存
-        PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+        DATA_DIR.mkdir(parents=True, exist_ok=True)
         processed_df = process_dataframe(df, item, cache)
-        processed_path = PROCESSED_DIR / filename
+        processed_path = DATA_DIR / filename
         processed_df.to_csv(processed_path, index=False, encoding="utf-8-sig")
 
         return processed_path

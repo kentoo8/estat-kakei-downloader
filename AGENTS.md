@@ -19,8 +19,7 @@ GUI版（Streamlit）を提供。品目キャッシュにより高速な検索�
 ├── cache/
 │   └── kakei_2025_cache.json  # 品目キャッシュ（689品目）
 ├── data/
-│   ├── raw/            # APIから取得した生データ
-│   └── processed/      # 加工済みデータ（人間が読める形式）
+│   └── *.csv           # 加工済みデータ（人間が読める形式）
 └── docs/               # 人間用ドキュメント
     └── images/         # README用画像
 ```
@@ -36,7 +35,7 @@ GUI版（Streamlit）を提供。品目キャッシュにより高速な検索�
 | `search_items()` | 品目をキーワード検索 |
 | `parse_time()` | 時間コードをYYYY-MM形式に変換 |
 | `process_dataframe()` | DataFrameを人間が読める形式に変換 |
-| `download_item()` | 単一品目のダウンロード（raw + processed） |
+| `download_item()` | 単一品目のダウンロード（processedのみ） |
 | `get_selected_codes()` | チェックボックス状態から選択中コード取得 |
 | `main()` | Streamlit UI |
 

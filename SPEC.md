@@ -35,8 +35,6 @@ project_root/
     cache/
         kakei_2025_cache.json
     data/
-        raw/
-        processed/
     .env.example
     README.md
     AGENTS.md
@@ -85,13 +83,12 @@ Output: pandas.DataFrame
 - 品目キャッシュからの検索（キーワード一致）
 - チェックボックスで品目を複数選択
 - サイドバーから一括ダウンロード
-- raw/processed に保存
+- data/ に保存
 
 6. 出力仕様
 
-- data/raw に API の生データを保存
-- data/processed に読みやすい形式で保存
-- processed には year_month, item, household, area, unit, value を含む
+- data/ に読みやすい形式で保存
+- 出力には year_month, item, household, area, unit, value を含む
 
 7. エラー設計
 
