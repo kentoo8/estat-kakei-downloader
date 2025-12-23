@@ -103,3 +103,4 @@ GUI版（Streamlit）を提供。品目キャッシュにより高速な検索�
 ## 最近の変更
 
 - APIのSTATUS型正規化とDataFrame列欠損時の安全化を追加
+- parse_time()の入力バリデーションを追加

@@ -58,6 +58,10 @@ def search_items(items: list[dict], keyword: str) -> list[dict]:
 def parse_time(time_code: str) -> str:
     """時間コードをYYYY-MM形式に変換"""
     # "2000000101" → "2000-01"
+    if not isinstance(time_code, str) or len(time_code) < 8:
+        return ""
+    if not time_code[:8].isdigit():
+        return ""
     year = time_code[:4]
     month = time_code[6:8]
     return f"{year}-{month}"
