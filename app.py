@@ -4,6 +4,7 @@
 """
 
 import json
+import re
 from pathlib import Path
 
 import streamlit as st
@@ -102,13 +103,18 @@ def download_item(
     """品目データをダウンロード（processedのみ）"""
     item_filters = {**filters, "cat01": item["code"]}
 
+    def sanitize_filename(name: str) -> str:
+        sanitized = re.sub(r'[<>:"/\\\\|?*]', "_", name)
+        sanitized = re.sub(r"[\\s\\u0000-\\u001f]+", " ", sanitized).strip()
+        return sanitized or "item"
+
     try:
         df = fetch_stats_data(stats_data_id, item_filters)
         if df.empty:
             return None
 
         # ファイル名の安全化
-        safe_name = item["display_name"].replace("/", "_").replace("\\", "_")
+        safe_name = sanitize_filename(item["display_name"])
         filename = f"家計調査_{safe_name}_月次.csv"
 
         # processed保存

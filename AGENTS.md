@@ -104,3 +104,4 @@ GUI版（Streamlit）を提供。品目キャッシュにより高速な検索�
 
 - APIのSTATUS型正規化とDataFrame列欠損時の安全化を追加
 - parse_time()の入力バリデーションを追加
+- ファイル名のサニタイズを強化
