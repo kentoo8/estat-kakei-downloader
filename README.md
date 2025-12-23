@@ -1,6 +1,6 @@
 # estat-kakei-downloader
 
-e-Stat APIで家計調査（2025年改定）の月次支出データを取得するCLI/GUIツール。
+e-Stat APIで家計調査（2025年改定）の月次支出データを取得するGUIツール。
 
 ## セットアップ
 
@@ -20,7 +20,7 @@ cp .env.example .env
 
 ## 使い方
 
-### GUI版（推奨）
+### GUI版
 
 ```bash
 streamlit run app.py
@@ -31,20 +31,11 @@ streamlit run app.py
 - 「表示中を全選択/全解除」で一括操作
 - サイドバーから一括ダウンロード
 
-### CLI版
-
-```bash
-python cli.py
-```
-
-対話形式で品目を検索・ダウンロード。
-
 ## ファイル構成
 
 | ファイル | 説明 |
 |----------|------|
 | `app.py` | GUI（Streamlit） |
-| `cli.py` | CLI |
 | `data_fetcher.py` | e-Stat API通信 |
 | `cache/kakei_2025_cache.json` | 品目キャッシュ（689品目） |
 | `docs/品目一覧_2025年改定.md` | 品目一覧（人間用） |

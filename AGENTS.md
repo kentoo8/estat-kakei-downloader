@@ -9,13 +9,12 @@
 プロジェクト名: estat-kakei-downloader
 
 家計調査（2025年改定）の月次支出データをe-Stat APIから取得するツール。
-CLI版とGUI版（Streamlit）を提供。品目キャッシュにより高速な検索を実現。
+GUI版（Streamlit）を提供。品目キャッシュにより高速な検索を実現。
 
 ## ファイル構成
 
 ```
 ├── app.py              # GUI（Streamlit）
-├── cli.py              # CLI（対話処理）
 ├── data_fetcher.py     # e-Stat API通信
 ├── cache/
 │   └── kakei_2025_cache.json  # 品目キャッシュ（689品目）
@@ -39,15 +38,6 @@ CLI版とGUI版（Streamlit）を提供。品目キャッシュにより高速�
 | `download_item()` | 単一品目のダウンロード（raw + processed） |
 | `get_selected_codes()` | チェックボックス状態から選択中コード取得 |
 | `main()` | Streamlit UI |
-
-### cli.py（CLI）
-
-| 関数 | 役割 |
-|------|------|
-| `load_cache()` | キャッシュJSON読み込み |
-| `search_items()` | 品目をキーワード検索 |
-| `select_item()` | 品目選択UI |
-| `main()` | メインループ |
 
 ### data_fetcher.py
 
@@ -93,7 +83,7 @@ CLI版とGUI版（Streamlit）を提供。品目キャッシュにより高速�
 - 型ヒント: モダン形式（`list[dict]`, `str | None`）
 - パス操作: `pathlib`のみ
 - 文字列: ダブルクォート
-- print: `cli.py`のみ許容
+- print: 原則禁止（必要なら`st.write()`などを使用）
 
 ## 拡張時の注意
 
