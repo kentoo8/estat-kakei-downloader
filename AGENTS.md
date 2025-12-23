@@ -85,6 +85,12 @@ GUI版（Streamlit）を提供。品目キャッシュにより高速な検索�
 - 文字列: ダブルクォート
 - print: 原則禁止（必要なら`st.write()`などを使用）
 
+## コミットメッセージ規約
+
+- 形式: `<type>: <概要>`
+- type: `feat` `fix` `docs` `chore` `refactor` `test` から選択
+- 概要: 日本語可、末尾の句点は省略
+
 ## 拡張時の注意
 
 1. **品目追加**: `cache/kakei_2025_cache.json`を更新
