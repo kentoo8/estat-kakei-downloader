@@ -99,3 +99,7 @@ GUI版（Streamlit）を提供。品目キャッシュにより高速な検索�
 2. **新しい統計表**: `stats_data_id`を変更
 3. **フィルター追加**: `_build_dimension_params()`を確認
 4. **GUI機能追加**: `app.py`のStreamlitコンポーネントを編集
+
+## 最近の変更
+
+- APIのSTATUS型正規化とDataFrame列欠損時の安全化を追加

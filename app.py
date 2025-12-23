@@ -67,14 +67,22 @@ def process_dataframe(df, item: dict, cache: dict) -> "pd.DataFrame":
     """DataFrameを加工して人間が読める形式に変換"""
     import pandas as pd
 
+    required_cols = ["time", "cat01", "cat02", "area", "unit", "value"]
+    for col in required_cols:
+        if col not in df.columns:
+            df[col] = pd.NA
+
     # マッピング作成
     item_map = {it["code"]: it["display_name"] for it in cache["items"]}
     household_map = {h["code"]: h["name"] for h in cache["households"]}
     area_map = {a["code"]: a["name"] for a in cache["areas"]}
 
+    def format_time(value) -> str:
+        return parse_time(value) if isinstance(value, str) else ""
+
     # 加工
     processed = pd.DataFrame()
-    processed["year_month"] = df["time"].apply(parse_time)
+    processed["year_month"] = df["time"].apply(format_time)
     processed["item"] = df["cat01"].map(item_map).fillna(item["display_name"])
     processed["household"] = df["cat02"].map(household_map)
     processed["area"] = df["area"].map(area_map)

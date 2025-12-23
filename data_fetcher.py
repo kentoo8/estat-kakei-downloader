@@ -82,9 +82,15 @@ def _check_api_response(data: dict) -> None:
     """
     result = data.get("GET_STATS_DATA", {}).get("RESULT", {})
     status = result.get("STATUS")
-    if status != 0:
+    try:
+        status_value = int(status)
+    except (TypeError, ValueError):
+        status_value = None
+    if status_value is None:
+        raise EStatApiError("e-Stat API エラー: STATUSの形式が不正です")
+    if status_value != 0:
         error_msg = result.get("ERROR_MSG", "不明なエラー")
-        raise EStatApiError(f"e-Stat API エラー: {error_msg}", status)
+        raise EStatApiError(f"e-Stat API エラー: {error_msg}", status_value)
 
 
 def count_stats_data(stats_data_id: str, dimension_filters: dict[str, str]) -> int:
